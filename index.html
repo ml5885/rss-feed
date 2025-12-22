@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>The Roast</title>
+        <link rel="icon" type="image/png" href="assets/bean.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="header-top">
+                    <div>
+                        <h1>The Roast</h1>
+                        <p class="date" id="current-date"></p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="filter-btn" id="source-filter-btn"
+                            aria-label="Filter by source">
+                            <svg width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path
+                                    d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"></path>
+                                <path d="M9 12h6"></path><path
+                                    d="M9 8h6"></path><path d="M9 16h6"></path>
+                            </svg>
+                        </button>
+                        <button class="filter-btn" id="filter-btn"
+                            aria-label="Filter by time">
+                            <svg width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="12" r="8"></circle><path
+                                    d="M12 8v5l3 2"></path>
+                            </svg>
+                        </button>
+                        <button class="settings-btn" id="settings-btn"
+                            aria-label="Settings">
+                            <svg width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <div class="active-filter" id="active-filter"
+                    style="display:none;">
+                    <span class="active-filter-chip">
+                        <span id="active-filter-label">Filtered</span>
+                        <button class="active-filter-x" id="active-filter-clear"
+                            aria-label="Clear time filter">
+                            <svg width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"><line x1="18" y1="6"
+                                    x2="6" y2="18"></line><line x1="6" y1="6"
+                                    x2="18" y2="18"></line></svg>
+                        </button>
+                    </span>
+                </div>
+
+                <div class="active-filter" id="active-source-filter"
+                    style="display:none;">
+                    <span class="active-filter-chip">
+                        <span id="active-source-filter-label">Filtered</span>
+                        <button class="active-filter-x"
+                            id="active-source-filter-clear"
+                            aria-label="Clear source filter">
+                            <svg width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"><line x1="18" y1="6"
+                                    x2="6" y2="18"></line><line x1="6" y1="6"
+                                    x2="18" y2="18"></line></svg>
+                        </button>
+                    </span>
+                </div>
+
+                <div id="loading" class="loading">
+                    <p>Loading your feeds...</p>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    <p class="progress-text" id="progress-text">0 / 0 feeds</p>
+                </div>
+                <div id="empty-state" class="empty-state"
+                    style="display: none;">
+                    <p>No feeds configured yet.</p>
+                    <button class="add-feeds-btn" id="add-feeds-btn">Add your
+                        first feed</button>
+                </div>
+                <ul class="feed" id="feed-list"></ul>
+            </main>
+
+            <footer id="footer" style="display: none;">
+                <p><span id="source-count">0</span> sources · Updated just
+                    now</p>
+            </footer>
+        </div>
+
+        <div class="modal-overlay" id="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Manage Feeds</h2>
+                    <button class="modal-close" id="modal-close"
+                        aria-label="Close">
+                        <svg width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"><line
+                                x1="18" y1="6" x2="6" y2="18"></line><line
+                                x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="feed-input-group">
+                        <input type="url" id="new-feed-url"
+                            placeholder="Enter RSS feed URL..." />
+                        <button id="add-feed-btn">Add</button>
+                    </div>
+                    <ul class="feed-list-settings" id="feed-list-settings"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="filter-modal-overlay">
+            <div class="modal modal-filter" role="dialog" aria-modal="true">
+                <div class="modal-header">
+                    <div><h2 id="filter-modal-title">Filter</h2><p
+                            class="modal-subtitle">Limit by time.</p></div>
+                    <button class="modal-close" id="filter-modal-close"
+                        aria-label="Close"><svg width="18" height="18"
+                            viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"><line
+                                x1="18" y1="6" x2="6" y2="18"></line><line
+                                x1="6" y1="6" x2="18"
+                                y2="18"></line></svg></button>
+                </div>
+                <div class="modal-body">
+                    <div class="filter-section">
+                        <p class="filter-section-title">Quick</p>
+                        <div class="filter-pills" role="group">
+                            <button class="filter-pill"
+                                data-preset="24h">24h</button>
+                            <button class="filter-pill"
+                                data-preset="7d">7d</button>
+                            <button class="filter-pill"
+                                data-preset="30d">30d</button>
+                            <button class="filter-pill"
+                                data-preset="all">All</button>
+                        </div>
+                    </div>
+                    <div class="filter-section">
+                        <p class="filter-section-title">Range</p>
+                        <div class="filter-range">
+                            <label
+                                class="filter-range-field"><span>From</span><input
+                                    type="date" id="filter-from" /></label>
+                            <label
+                                class="filter-range-field"><span>To</span><input
+                                    type="date" id="filter-to" /></label>
+                        </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="filter-secondary"
+                            id="filter-reset">Reset</button>
+                        <button class="filter-primary"
+                            id="filter-apply">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="source-filter-modal-overlay">
+            <div class="modal modal-filter" role="dialog" aria-modal="true">
+                <div class="modal-header">
+                    <div><h2 id="source-filter-modal-title">Sources</h2><p
+                            class="modal-subtitle">Select sources.</p></div>
+                    <button class="modal-close" id="source-filter-modal-close"
+                        aria-label="Close"><svg width="18" height="18"
+                            viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"><line
+                                x1="18" y1="6" x2="6" y2="18"></line><line
+                                x1="6" y1="6" x2="18"
+                                y2="18"></line></svg></button>
+                </div>
+                <div class="modal-body">
+                    <div class="source-filter-actions-top">
+                        <button class="source-filter-action"
+                            id="source-filter-select-all">Select all</button>
+                        <button class="source-filter-action"
+                            id="source-filter-deselect-all">Deselect
+                            all</button>
+                    </div>
+                    <ul class="source-filter-list" id="source-filter-list"></ul>
+                    <div class="filter-actions">
+                        <button class="filter-secondary"
+                            id="source-filter-reset">Reset</button>
+                        <button class="filter-primary"
+                            id="source-filter-apply">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="app.js"></script>
+    </body>
+</html>
