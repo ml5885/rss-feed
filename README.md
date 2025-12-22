@@ -10,4 +10,4 @@ node proxy-server.js
 
 We need the proxy server to avoid CORS issues when fetching RSS feeds.
 
-Finally, open `index.html` in your web browser (or http://localhost:5500 if you started a local server). Enjoy!
+Finally, open `index.html` in your web browser (or http://localhost:xxxx if you started a local server). Enjoy!
