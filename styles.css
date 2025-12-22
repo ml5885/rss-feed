@@ -6,9 +6,10 @@
 	--text-tertiary: #a8a29e;
 	--accent: #767676; /* #991b1b; */
 	--accent-hover: #000000; /* #7f1d1d; */
+	--feed-source: #a60321;
 	--border: #e7e5e4;
-	--font-mono: "National Park Variable", monospace;
-	--font-body: "Grenette Pro", sans-serif;
+	--font-mono: "National Park Variable", "DM Mono", monospace;
+	--font-body: "Grenette Pro", "Crimson Pro", serif;
 	--font-header: "libra", "UnifrakturCook", serif;
 }
 
@@ -241,7 +242,7 @@ h1 {
 	font-weight: 500;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	color: var(--accent);
+	color: var(--feed-source);
 	margin-bottom: 0;
 }
 
