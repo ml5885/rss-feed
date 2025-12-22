@@ -17,6 +17,7 @@ const MAX_ITEMS_PER_FEED = 25;
 let feeds = [];
 let allItems = [];
 let visibleItems = [];
+let feedSourceByUrl = {};
 let enabledSources = null;
 let timeFilter = { type: "all" };
 
@@ -34,10 +35,6 @@ const filterModalOverlay = document.getElementById("filter-modal-overlay");
 const filterFrom = document.getElementById("filter-from");
 const filterTo = document.getElementById("filter-to");
 const activeFilter = document.getElementById("active-filter");
-const sourceFilterBtn = document.getElementById("source-filter-btn");
-const sourceFilterModalOverlay = document.getElementById(
-	"source-filter-modal-overlay"
-);
 const sourceFilterList = document.getElementById("source-filter-list");
 const activeSourceFilter = document.getElementById("active-source-filter");
 
@@ -94,7 +91,7 @@ function setupEventListeners() {
 
 	document
 		.getElementById("filter-apply")
-		?.addEventListener("click", applyFilterFromUI);
+		?.addEventListener("click", applyCombinedFilterFromUI);
 	document
 		.getElementById("filter-reset")
 		?.addEventListener("click", resetFilterUI);
@@ -105,21 +102,6 @@ function setupEventListeners() {
 			applyTimeFilterAndRender();
 		});
 
-	sourceFilterBtn?.addEventListener("click", openSourceFilterModal);
-	document
-		.getElementById("source-filter-modal-close")
-		?.addEventListener("click", closeSourceFilterModal);
-	sourceFilterModalOverlay?.addEventListener(
-		"click",
-		(e) => e.target === sourceFilterModalOverlay && closeSourceFilterModal()
-	);
-
-	document
-		.getElementById("source-filter-apply")
-		?.addEventListener("click", applySourceFilterFromUI);
-	document
-		.getElementById("source-filter-reset")
-		?.addEventListener("click", resetSourceFilterUI);
 	document
 		.getElementById("source-filter-select-all")
 		?.addEventListener("click", selectAllSources);
@@ -149,7 +131,6 @@ function setupEventListeners() {
 		if (e.key === "Escape") {
 			closeModal();
 			closeFilterModal();
-			closeSourceFilterModal();
 		}
 	});
 }
@@ -166,6 +147,7 @@ function closeModal() {
 
 function openFilterModal() {
 	hydrateFilterModalFromState();
+	renderSourceFilterList();
 	filterModalOverlay?.classList.add("active");
 }
 
@@ -263,11 +245,13 @@ function selectFilterPreset(preset) {
 
 function resetFilterUI() {
 	setTimeFilter({ type: "all" });
+	enabledSources = null;
+	saveSourceFilter();
 	applyTimeFilterAndRender();
 	closeFilterModal();
 }
 
-function applyFilterFromUI() {
+function applyCombinedFilterFromUI() {
 	const from = filterFrom?.value;
 	const to = filterTo?.value;
 	const preset = document.querySelector(".filter-pill.selected")?.dataset
@@ -278,6 +262,16 @@ function applyFilterFromUI() {
 	else if (["24h", "7d", "30d"].includes(preset))
 		setTimeFilter({ type: "preset", preset });
 	else setTimeFilter({ type: "all" });
+
+	const allSources = getAllSources();
+	if (sourceFilterList && allSources.length > 0) {
+		const checked = Array.from(
+			sourceFilterList.querySelectorAll(".source-filter-checkbox:checked")
+		);
+		if (checked.length === allSources.length) enabledSources = null;
+		else enabledSources = new Set(checked.map((cb) => cb.dataset.source));
+		saveSourceFilter();
+	}
 
 	applyTimeFilterAndRender();
 	closeFilterModal();
@@ -290,6 +284,15 @@ function loadSourceFilter() {
 	} catch {}
 }
 
+function getSourceLabelFromFeedUrl(feedUrl) {
+	try {
+		const u = new URL(feedUrl);
+		return (u.hostname || feedUrl).replace(/^www\./i, "");
+	} catch {
+		return feedUrl;
+	}
+}
+
 function saveSourceFilter() {
 	if (enabledSources === null)
 		localStorage.removeItem(SOURCE_FILTER_STORAGE_KEY);
@@ -300,18 +303,21 @@ function saveSourceFilter() {
 		);
 }
 
-function openSourceFilterModal() {
-	renderSourceFilterList();
-	sourceFilterModalOverlay?.classList.add("active");
-}
-
-function closeSourceFilterModal() {
-	sourceFilterModalOverlay?.classList.remove("active");
-}
-
 function getAllSources() {
 	const sources = new Set(allItems.map((i) => i.source).filter(Boolean));
+	for (const url of feeds) {
+		const label = feedSourceByUrl[url] || getSourceLabelFromFeedUrl(url);
+		if (label) sources.add(label);
+	}
 	return [...sources].sort((a, b) => a.localeCompare(b));
+}
+
+function normalizeEnabledSourcesToAvailable() {
+	if (enabledSources === null) return;
+	const available = new Set(getAllSources());
+	enabledSources = new Set([...enabledSources].filter((s) => available.has(s)));
+	if (enabledSources.size === available.size) enabledSources = null;
+	saveSourceFilter();
 }
 
 function renderSourceFilterList() {
@@ -355,37 +361,11 @@ function deselectAllSources() {
 		.forEach((cb) => (cb.checked = false));
 }
 
-function applySourceFilterFromUI() {
-	const checkboxes = sourceFilterList?.querySelectorAll(
-		".source-filter-checkbox:checked"
-	);
-	const allSources = getAllSources();
-
-	if (checkboxes.length === allSources.length) enabledSources = null;
-	else
-		enabledSources = new Set(
-			Array.from(checkboxes).map((cb) => cb.dataset.source)
-		);
-
-	saveSourceFilter();
-	updateActiveSourceFilterUI();
-	applyTimeFilterAndRender();
-	closeSourceFilterModal();
-}
-
-function resetSourceFilterUI() {
-	enabledSources = null;
-	saveSourceFilter();
-	updateActiveSourceFilterUI();
-	applyTimeFilterAndRender();
-	closeSourceFilterModal();
-}
-
 function updateActiveSourceFilterUI() {
 	const allSources = getAllSources();
 	if (enabledSources === null || enabledSources.size === allSources.length) {
 		activeSourceFilter.style.display = "none";
-		sourceFilterBtn?.classList.remove("is-active");
+		filterBtn?.classList.remove("is-active");
 		return;
 	}
 
@@ -399,7 +379,7 @@ function updateActiveSourceFilterUI() {
 
 	document.getElementById("active-source-filter-label").textContent = label;
 	activeSourceFilter.style.display = "flex";
-	sourceFilterBtn?.classList.add("is-active");
+	filterBtn?.classList.add("is-active");
 }
 
 function loadFeeds() {
@@ -550,6 +530,7 @@ async function initFeedLoading() {
 
 	loading.style.display = "none";
 	footer.style.display = "block";
+	normalizeEnabledSourcesToAvailable();
 	applyTimeFilterAndRender();
 }
 
@@ -613,6 +594,7 @@ function parseFeed(xmlText, feedUrl) {
 		.replace(/\s*[-–—|]\s*(RSS|Feed|Blog).*$/i, "")
 		.replace(/\s*RSS.*$/i, "")
 		.trim();
+	feedSourceByUrl[feedUrl] = sourceName || getSourceLabelFromFeedUrl(feedUrl);
 
 	return Array.from(items).map((item) => {
 		const title = item.querySelector("title")?.textContent;
