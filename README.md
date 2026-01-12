@@ -2,6 +2,8 @@
 
 This is a simple RSS feed reader that lets you subscribe to and read RSS feeds in a clean, minimalistic interface. It is built using HTML, CSS, and JavaScript.
 
+![Example RSS Feed](./assets/example.png)
+
 To run the project, first start the proxy server:
 
 ```bash
